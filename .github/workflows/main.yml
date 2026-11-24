@@ -1,9 +1,7 @@
 name: 5-Location Weather & Environmental Monitor
 
 on:
-  schedule:
     # Runs reliably every hour (Standard POSIX cron)
-    - cron: '0 * * * *'
   workflow_dispatch: # Allows manual 1-click check anytime
 
 jobs:

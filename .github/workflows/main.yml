@@ -2,8 +2,8 @@ name: 5-Location Weather & Environmental Monitor
 
 on:
   schedule:
-    # Runs every 1 hour strictly from 7:00 AM IST to 7:00 PM IST (01:30 to 13:30 UTC)
-    - cron: '30 1-13 * * *'
+    # Runs every 1 hour strictly from 7:05 AM IST to 7:05 PM IST (01:35 to 13:35 UTC)
+    - cron: '35 1-13 * * *'
   workflow_dispatch: # Allows manual 1-click check anytime
 
 jobs:

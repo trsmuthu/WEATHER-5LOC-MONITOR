@@ -7,6 +7,7 @@ Features:
   - Wind Speed & Gust Threshold Warnings (> 20 km/h or gusts > 30 km/h)
   - Daily High & Low Temperatures for each location
   - Automated push notifications to iPhone via ntfy every hour from 7 AM to 7 PM IST
+  - Auto-sleep during night hours (8:00 PM to 6:59 AM IST)
 
 Locations:
   1. New Delhi: 28.500028, 77.266119
@@ -120,7 +121,7 @@ def send_iphone_push(title, body, is_urgent=False):
     payload = body.encode("utf-8")
     
     req = urllib.request.Request(endpoint, data=payload, method="POST")
-    # Keep HTTP headers strictly ASCII (no emojis) to avoid latin-1 codec errors
+    # Pure ASCII title to avoid latin-1 header encoding issues
     clean_title = title.encode("ascii", "ignore").decode("ascii")
     req.add_header("Title", clean_title)
     req.add_header("Priority", "urgent" if is_urgent else "default")
@@ -256,9 +257,19 @@ def main():
         print("Sending test notification to iPhone...")
         send_iphone_push(
             "Hourly Prediction Connected!",
-            "1-Hour Prediction Alerts for Sunny, Rain, and Wind are now active from 7:00 AM to 7:00 PM IST!",
+            "1-Hour Prediction Alerts for Sunny, Rain, and Wind are active!",
             is_urgent=False
         )
+        return
+
+    # Check active daytime window (7:00 AM to 7:00 PM IST)
+    ist = timezone(timedelta(hours=5, minutes=30))
+    now_ist = datetime.now(ist)
+    is_manual = "--force" in sys.argv or "--manual" in sys.argv or os.getenv("GITHUB_EVENT_NAME") == "workflow_dispatch"
+
+    # Auto-sleep during night hours (8:00 PM to 6:59 AM IST) unless manually triggered
+    if not is_manual and not (7 <= now_ist.hour <= 19):
+        print(f"[{now_ist.strftime('%d %b, %I:%M %p IST')}] Night time (outside 7 AM - 7 PM IST). Staying silent so you can sleep.")
         return
 
     report, is_urgent = build_hourly_prediction_report()
